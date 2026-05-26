@@ -4,29 +4,35 @@ Sistema CRUD para gerenciamento de estoque de veículos desenvolvido utilizando 
 
 ## Objetivo
 
-O projeto tem como objetivo permitir o gerenciamento de veículos através de operações de cadastro, consulta, atualização e remoção de dados utilizando uma API REST.
+O projeto tem como objetivo permitir o gerenciamento de veículos por meio de operações de cadastro, consulta, atualização e remoção de dados utilizando uma API REST integrada a um banco de dados MySQL.
 
 ---
 
 ## Tecnologias Utilizadas
 
-* Java
-* Spring Boot
-* Spring Data JPA
-* MySQL 
-* HTML / JavaScript
+- Java
+- Spring Boot
+- Spring Data JPA
+- MySQL
+- HTML
+- CSS
+- JavaScript
 
 ---
 
 ## Funcionalidades
 
-* Cadastro de marcas
-* Cadastro de modelos
-* Cadastro de veículos
-* Consulta de veículos
-* Filtros por ano e outras informações
-* Atualização de dados
-* Remoção de veículos
+- Cadastro de marcas
+- Cadastro de modelos
+- Cadastro de veículos
+- Consulta de veículos
+- Filtros por marca
+- Filtros por modelo
+- Filtros por ano
+- Filtros por preço
+- Filtros por status
+- Atualização de dados
+- Remoção de veículos
 
 ---
 
@@ -34,9 +40,9 @@ O projeto tem como objetivo permitir o gerenciamento de veículos através de op
 
 O sistema foi desenvolvido utilizando arquitetura em camadas:
 
-* Controller → Recebe as requisições HTTP
-* Service → Regras de negócio e validações
-* Repository → Acesso ao banco de dados
+- Controller → Responsável pelas requisições HTTP
+- Service → Responsável pelas regras de negócio e validações
+- Repository → Responsável pelo acesso ao banco de dados
 
 ---
 
@@ -44,12 +50,12 @@ O sistema foi desenvolvido utilizando arquitetura em camadas:
 
 ### Veículos
 
-| Método | Endpoint           | Descrição        |
-| ------ | ------------------ | ---------------- |
-| GET    | /api/veiculos      | Lista veículos   |
-| POST   | /api/veiculos      | Cadastra veículo |
-| PUT    | /api/veiculos/{id} | Atualiza veículo |
-| DELETE | /api/veiculos/{id} | Remove veículo   |
+| Método | Endpoint           | Descrição              |
+|--------|-------------------|------------------------|
+| GET    | /api/veiculos     | Lista os veículos      |
+| POST   | /api/veiculos     | Cadastra um veículo    |
+| PUT    | /api/veiculos/{id}| Atualiza um veículo    |
+| DELETE | /api/veiculos/{id}| Remove um veículo      |
 
 ---
 
@@ -62,7 +68,7 @@ O sistema foi desenvolvido utilizando arquitetura em camadas:
   "cor": "Preto",
   "preco": 55000,
   "quilometragem": 30000,
-  "status": "DISPONIVEL"
+  "status": "Disponivel"
 }
 ```
 
@@ -71,23 +77,29 @@ O sistema foi desenvolvido utilizando arquitetura em camadas:
 ## Como Executar
 
 1. Clonar o repositório
-2. Configurar o arquivo `application.properties` com os dados do seu banco MySQL antes de executar a aplicação.
+2. Configurar o arquivo `application.properties` com os dados do banco MySQL
 3. Executar o projeto Spring Boot
-4. Acessar a API em: `http://localhost:8080`
+4. Acessar o sistema em:
+
+```bash
+http://localhost:8080
+```
 
 ---
 
 ## Conceitos Aplicados
 
-* Programação Orientada a Objetos
-* Encapsulamento
-* Herança
-* API REST
-* Arquitetura MVC
+- Programação Orientada a Objetos
+- Encapsulamento
+- Herança
+- API REST
+- Arquitetura em Camadas
+- CRUD
+- Persistência de Dados com JPA
 
 ---
 
 ## Autor
 
-Willian Emanoel
+Willian Emanoel  
 RA: 41620
