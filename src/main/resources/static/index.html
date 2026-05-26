@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>SISTEMA DE GESTAO DE ESTOQUE - VEICULOS</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #f4f4f4;
+            --accent: #2980b9;
+            --success: #27ae60;
+            --danger: #c0392b;
+            --warning: #f39c12;
+            --border: #ddd;
+            --muted: #666;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            background: var(--secondary);
+            color: #333;
+        }
+
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 15px 30px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border);
+            box-sizing: border-box;
+            background: white;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            transition: 0.2s;
+            margin-top: 5px;
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-edit {
+            background: var(--warning);
+            color: white;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            background: #fff;
+            padding: 15px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: #eee;
+            text-align: left;
+            padding: 12px;
+            font-size: 0.85rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        .acoes button {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .mensagem {
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            border: 1px solid var(--border);
+            background: #fafafa;
+            display: none;
+        }
+
+        .loading-text {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--muted);
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<header>SISTEMA DE CONTROLE DE ESTOQUE - VEICULOS</header>
+
+<div class="container">
+    <aside>
+        <div class="card">
+            <div class="section-title">Cadastrar Marca</div>
+            <div class="mensagem" id="msgMarca"></div>
+
+            <div class="form-group">
+                <label>Nome da Marca</label>
+                <input type="text" id="novaMarca" placeholder="Ex: Honda">
+            </div>
+
+            <button class="btn btn-primary" id="btnCadastrarMarca" onclick="cadastrarMarca()">Cadastrar Marca</button>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Cadastrar Modelo</div>
+            <div class="mensagem" id="msgModelo"></div>
+
+            <div class="form-group">
+                <label>Marca</label>
+                <select id="marcaModeloSelect">
+                    <option value="">Selecione a marca...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Nome do Modelo</label>
+                <input type="text" id="novoModelo" placeholder="Ex: Civic">
+            </div>
+
+            <button class="btn btn-primary" id="btnCadastrarModelo" onclick="cadastrarModelo()">Cadastrar Modelo</button>
+        </div>
+    </aside>
+
+    <main>
+        <div class="card">
+            <div class="section-title" id="tituloForm">Cadastrar Veiculo</div>
+            <div class="mensagem" id="msgVeiculo"></div>
+
+            <div class="filter-grid" style="grid-template-columns: repeat(3, 1fr); border: none; padding: 0;">
+                <div class="form-group">
+                    <label>Marca</label>
+                    <select id="marcaSelect" onchange="carregarModelosParaVeiculo()">
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Modelo</label>
+                    <select id="modeloSelect">
+                        <option value="">Selecione...</option>
+                    </select>
+                    <div class="loading-text" id="loadingModelo"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Ano</label>
+                    <input type="number" id="ano">
+                </div>
+
+                <div class="form-group">
+                    <label>Cor</label>
+                    <input type="text" id="cor">
+                </div>
+
+                <div class="form-group">
+                    <label>Preco (R$)</label>
+                    <input type="number" id="preco" step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label>Quilometragem</label>
+                    <input type="number" id="quilometragem" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="status">
+                        <option value="Disponivel">Disponivel</option>
+                        <option value="Vendido">Vendido</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn btn-success" id="btnSalvar" onclick="salvarVeiculo()">Salvar Veiculo</button>
+            <button class="btn btn-danger" id="btnCancelar" style="display:none; margin-top:5px;" onclick="resetarFormulario()">Cancelar Edicao</button>
+        </div>
+
+       <div class="section-title">Consulta e Filtros</div>
+
+    <div class="filter-grid">
+
+    <div class="input-group">
+        <label>Marca</label>
+        <input type="text" id="fMarca" oninput="buscarVeiculos()">
+    </div>
+
+    <div class="input-group">
+        <label>Modelo</label>
+        <input type="text" id="fModelo" oninput="buscarVeiculos()">
+    </div>
+
+    <div class="input-group">
+        <label>Ano</label>
+        <input type="number" id="fAno" oninput="buscarVeiculos()">
+    </div>
+
+    <div class="input-group">
+        <label>Preco Max</label>
+        <input type="number" id="fPreco" oninput="buscarVeiculos()">
+    </div>
+
+    <div class="input-group">
+        <label>Status</label>
+        <select id="fStatus" onchange="buscarVeiculos()">
+            <option value="">Todos</option>
+            <option value="Disponivel">Disponivel</option>
+            <option value="Vendido">Vendido</option>
+        </select>
+    </div>
+
+</div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Veiculo</th>
+                    <th>Ano/Cor</th>
+                    <th>Preco</th>
+                    <th>KM</th>
+                    <th>Status</th>
+                    <th>Acoes</th>
+                </tr>
+            </thead>
+            <tbody id="listaVeiculos"></tbody>
+        </table>
+    </main>
+</div>
+
+<script>
+    const API_MARCAS = "/api/marcas";
+    const API_MODELOS = "/api/modelos";
+    const API_VEICULOS = "/api/veiculos";
+
+    let editId = null;
+
+    function mostrarMensagem(id, texto, sucesso = true) {
+        const el = document.getElementById(id);
+        el.style.display = "block";
+        el.innerText = texto;
+        el.style.color = sucesso ? "#155724" : "#721c24";
+        el.style.background = sucesso ? "#d4edda" : "#f8d7da";
+        el.style.borderColor = sucesso ? "#c3e6cb" : "#f5c6cb";
+
+        setTimeout(() => {
+            el.style.display = "none";
+        }, 3500);
+    }
+
+    async function extrairMensagemErro(res) {
+        try {
+            const texto = await res.text();
+            if (texto && texto.trim() !== "") {
+                return texto;
+            }
+        } catch (e) {}
+        return "Ocorreu um erro na operação.";
+    }
+
+    function adicionarMarcaNosSelects(marca) {
+        const marcaSelect = document.getElementById("marcaSelect");
+        const marcaModeloSelect = document.getElementById("marcaModeloSelect");
+
+        const existeNoCadastroVeiculo = Array.from(marcaSelect.options)
+            .some(option => Number(option.value) === Number(marca.id));
+
+        const existeNoCadastroModelo = Array.from(marcaModeloSelect.options)
+            .some(option => Number(option.value) === Number(marca.id));
+
+        if (!existeNoCadastroVeiculo) {
+            marcaSelect.innerHTML += `<option value="${marca.id}">${marca.nome}</option>`;
+        }
+
+        if (!existeNoCadastroModelo) {
+            marcaModeloSelect.innerHTML += `<option value="${marca.id}">${marca.nome}</option>`;
+        }
+    }
+
+    function adicionarModeloNoSelect(modelo) {
+        const modeloSelect = document.getElementById("modeloSelect");
+
+        const existe = Array.from(modeloSelect.options)
+            .some(option => Number(option.value) === Number(modelo.id));
+
+        if (!existe) {
+            modeloSelect.innerHTML += `<option value="${modelo.id}">${modelo.nome}</option>`;
+        }
+    }
+
+    async function carregarMarcas() {
+        const res = await fetch(API_MARCAS);
+        const marcas = await res.json();
+
+        const marcaSelect = document.getElementById("marcaSelect");
+        const marcaModeloSelect = document.getElementById("marcaModeloSelect");
+
+        marcaSelect.innerHTML = '<option value="">Selecione...</option>';
+        marcaModeloSelect.innerHTML = '<option value="">Selecione a marca...</option>';
+
+        marcas.forEach(marca => {
+            adicionarMarcaNosSelects(marca);
+        });
+    }
+
+    async function carregarModelosParaVeiculo() {
+        const marcaId = document.getElementById("marcaSelect").value;
+        const modeloSelect = document.getElementById("modeloSelect");
+        const loadingModelo = document.getElementById("loadingModelo");
+
+        modeloSelect.innerHTML = '<option value="">Selecione...</option>';
+        modeloSelect.disabled = true;
+        loadingModelo.innerText = "";
+
+        if (!marcaId) {
+            modeloSelect.disabled = false;
+            return;
+        }
+
+        loadingModelo.innerText = "Carregando modelos...";
+
+        try {
+            const res = await fetch(`${API_MODELOS}?marcaId=${marcaId}`);
+            const modelos = await res.json();
+
+            modeloSelect.innerHTML = '<option value="">Selecione...</option>';
+
+            const idsAdicionados = new Set();
+            modelos.forEach(modelo => {
+                if (!idsAdicionados.has(modelo.id)) {
+                    idsAdicionados.add(modelo.id);
+                    modeloSelect.innerHTML += `<option value="${modelo.id}">${modelo.nome}</option>`;
+                }
+            });
+        } catch (erro) {
+            modeloSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+        } finally {
+            modeloSelect.disabled = false;
+            loadingModelo.innerText = "";
+        }
+    }
+
+    async function cadastrarMarca() {
+        const nome = document.getElementById("novaMarca").value.trim();
+        const btn = document.getElementById("btnCadastrarMarca");
+
+        if (!nome) {
+            mostrarMensagem("msgMarca", "Digite o nome da marca.", false);
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = "Cadastrando...";
+
+        try {
+            const res = await fetch(API_MARCAS, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nome })
+            });
+
+            if (!res.ok) {
+                throw new Error(await extrairMensagemErro(res));
+            }
+
+            const novaMarca = await res.json();
+
+            document.getElementById("novaMarca").value = "";
+            adicionarMarcaNosSelects(novaMarca);
+
+            mostrarMensagem("msgMarca", "Marca cadastrada com sucesso.");
+        } catch (erro) {
+            mostrarMensagem("msgMarca", erro.message || "Erro ao cadastrar marca.", false);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Cadastrar Marca";
+        }
+    }
+
+    async function cadastrarModelo() {
+        const marcaId = document.getElementById("marcaModeloSelect").value;
+        const nome = document.getElementById("novoModelo").value.trim();
+        const btn = document.getElementById("btnCadastrarModelo");
+
+        if (!marcaId || !nome) {
+            mostrarMensagem("msgModelo", "Selecione a marca e informe o modelo.", false);
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = "Cadastrando...";
+
+        try {
+            const res = await fetch(API_MODELOS, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    nome: nome,
+                    marca: {
+                        id: parseInt(marcaId)
+                    }
+                })
+            });
+
+            if (!res.ok) {
+                throw new Error(await extrairMensagemErro(res));
+            }
+
+            const novoModelo = await res.json();
+
+            document.getElementById("novoModelo").value = "";
+
+            if (Number(document.getElementById("marcaSelect").value) === Number(marcaId)) {
+                adicionarModeloNoSelect(novoModelo);
+            }
+
+            mostrarMensagem("msgModelo", "Modelo cadastrado com sucesso.");
+        } catch (erro) {
+            mostrarMensagem("msgModelo", erro.message || "Erro ao cadastrar modelo.", false);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Cadastrar Modelo";
+        }
+    }
+
+    async function buscarVeiculos() {
+    const params = new URLSearchParams();
+
+    const marca = document.getElementById("fMarca").value;
+    const modelo = document.getElementById("fModelo").value;
+    const ano = document.getElementById("fAno").value;
+    const preco = document.getElementById("fPreco").value;
+    const status = document.getElementById("fStatus").value;
+
+    if (marca) params.append("marca", marca);
+    if (modelo) params.append("modelo", modelo);
+    if (ano) params.append("ano", ano);
+    if (preco) params.append("precoMax", preco);
+    if (status) params.append("status", status);
+
+    const res = await fetch(`${API_VEICULOS}?${params.toString()}`);
+    const dados = await res.json();
+
+    renderizarVeiculos(dados);
+}
+
+    function renderizarVeiculos(dados) {
+        const corpo = document.getElementById("listaVeiculos");
+        corpo.innerHTML = "";
+
+        if (!dados || dados.length === 0) {
+            corpo.innerHTML = `<tr><td colspan="7" class="empty-state">Nenhum veículo encontrado.</td></tr>`;
+            return;
+        }
+
+        dados.forEach(v => {
+            const nomeMarca = v.modelo && v.modelo.marca ? v.modelo.marca.nome : "";
+            const nomeModelo = v.modelo ? v.modelo.nome : "";
+
+            corpo.innerHTML += `
+                <tr>
+                    <td>${v.id}</td>
+                    <td>${nomeMarca} ${nomeModelo}</td>
+                    <td>${v.ano ?? ""} / ${v.cor ?? ""}</td>
+                    <td>R$ ${(v.preco ?? 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                    <td>${v.quilometragem ?? 0} km</td>
+                    <td>${v.status ?? ""}</td>
+                    <td class="acoes">
+                        <button class="btn btn-edit" onclick='prepararEdicao(${JSON.stringify(v)})'>EDITAR</button>
+                        <button class="btn btn-danger" onclick="removerVeiculo(${v.id})">EXCLUIR</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    async function salvarVeiculo() {
+        const modeloId = document.getElementById("modeloSelect").value;
+        const ano = document.getElementById("ano").value;
+        const cor = document.getElementById("cor").value;
+        const preco = document.getElementById("preco").value;
+        const quilometragem = document.getElementById("quilometragem").value;
+        const status = document.getElementById("status").value;
+        const btn = document.getElementById("btnSalvar");
+
+        if (!modeloId || !ano || !preco) {
+            mostrarMensagem("msgVeiculo", "Preencha modelo, ano e preco.", false);
+            return;
+        }
+
+        const veiculo = {
+            modelo: {
+                id: parseInt(modeloId)
+            },
+            ano: parseInt(ano),
+            cor: cor,
+            preco: parseFloat(preco),
+            quilometragem: quilometragem ? parseInt(quilometragem) : 0,
+            status: status
+        };
+
+        btn.disabled = true;
+        btn.innerText = editId ? "Atualizando..." : "Salvando...";
+
+        try {
+            const res = await fetch(editId ? `${API_VEICULOS}/${editId}` : API_VEICULOS, {
+                method: editId ? "PUT" : "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(veiculo)
+            });
+
+            if (!res.ok) {
+                throw new Error(await extrairMensagemErro(res));
+            }
+
+            resetarFormulario();
+            await buscarVeiculos();
+            mostrarMensagem("msgVeiculo", editId ? "Veiculo atualizado com sucesso." : "Veiculo cadastrado com sucesso.");
+        } catch (erro) {
+            mostrarMensagem("msgVeiculo", erro.message || "Erro ao salvar veiculo.", false);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Salvar Veiculo";
+        }
+    }
+
+    async function prepararEdicao(v) {
+        editId = v.id;
+
+        document.getElementById("ano").value = v.ano ?? "";
+        document.getElementById("cor").value = v.cor ?? "";
+        document.getElementById("preco").value = v.preco ?? "";
+        document.getElementById("quilometragem").value = v.quilometragem ?? 0;
+        document.getElementById("status").value = v.status ?? "Disponivel";
+
+        if (v.modelo && v.modelo.marca && v.modelo.marca.id) {
+            document.getElementById("marcaSelect").value = v.modelo.marca.id;
+            await carregarModelosParaVeiculo();
+            document.getElementById("modeloSelect").value = v.modelo.id;
+        }
+
+        document.getElementById("tituloForm").innerText = "Atualizar Veiculo ID: " + v.id;
+        document.getElementById("btnCancelar").style.display = "block";
+        window.scrollTo(0, 0);
+    }
+
+    async function removerVeiculo(id) {
+        if (!confirm("Deseja excluir este veiculo?")) {
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_VEICULOS}/${id}`, {
+                method: "DELETE"
+            });
+
+            if (!res.ok) {
+                throw new Error(await extrairMensagemErro(res));
+            }
+
+            await buscarVeiculos();
+        } catch (erro) {
+            alert(erro.message || "Erro ao excluir veículo.");
+        }
+    }
+
+    function resetarFormulario() {
+        editId = null;
+        document.getElementById("marcaSelect").value = "";
+        document.getElementById("modeloSelect").innerHTML = '<option value="">Selecione...</option>';
+        document.getElementById("ano").value = "";
+        document.getElementById("cor").value = "";
+        document.getElementById("preco").value = "";
+        document.getElementById("quilometragem").value = "0";
+        document.getElementById("status").value = "Disponivel";
+        document.getElementById("tituloForm").innerText = "Cadastrar Veiculo";
+        document.getElementById("btnCancelar").style.display = "none";
+        document.getElementById("loadingModelo").innerText = "";
+    }
+
+    async function iniciarSistema() {
+        await carregarMarcas();
+        await buscarVeiculos();
+    }
+
+    iniciarSistema();
+</script>
+
+</body>
+</html>
